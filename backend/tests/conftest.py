@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set test environment variables before importing config
 os.environ["TELEGRAM_BOT_TOKEN"] = "test_token"
-os.environ["GOOGLE_AI_API_KEY"] = "test_api_key"
+os.environ["OPENROUTER_API_KEY"] = "test_api_key"
 os.environ["SUPADATA_API_KEY"] = "test_supadata_key"
 os.environ["REDIS_URL"] = "redis://localhost:6379"
 os.environ["DATABASE_URL"] = "sqlite:///./test_tikodea.db"

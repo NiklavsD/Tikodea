@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     # Telegram
     telegram_bot_token: str
 
-    # LLM (Gemini)
-    google_ai_api_key: str
+    # LLM (OpenRouter)
+    openrouter_api_key: str
 
     # TikTok Scraping
     supadata_api_key: str

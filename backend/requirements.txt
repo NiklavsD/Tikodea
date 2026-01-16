@@ -13,8 +13,8 @@ alembic>=1.13.0
 yt-dlp>=2024.1.0
 httpx>=0.27.0
 
-# LLM
-google-generativeai>=0.8.0
+# LLM (via OpenRouter)
+# Uses httpx which is already installed
 
 # API
 fastapi>=0.109.0

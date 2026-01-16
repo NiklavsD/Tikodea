@@ -52,15 +52,15 @@ def scrape_tiktok(url: str) -> dict:
 def get_transcript_supadata(url: str) -> Optional[str]:
     """Get transcript from Supadata API."""
     try:
-        response = httpx.post(
-            "https://api.supadata.ai/v1/tiktok/transcript",
-            headers={"Authorization": f"Bearer {settings.supadata_api_key}"},
-            json={"url": url},
+        response = httpx.get(
+            "https://api.supadata.ai/v1/transcript",
+            headers={"x-api-key": settings.supadata_api_key},
+            params={"url": url, "text": "true"},
             timeout=60.0,
         )
         response.raise_for_status()
         data = response.json()
-        return data.get("transcript", "")
+        return data.get("content", "")
     except Exception as e:
         print(f"Supadata transcript error: {e}")
         return None

@@ -1,18 +1,33 @@
 """LLM-powered video analysis - Phase 4 implementation."""
 import json
 from typing import Optional, List
-import google.generativeai as genai
+import httpx
 from config import get_settings
 
 settings = get_settings()
 
-# Configure Gemini
-genai.configure(api_key=settings.google_ai_api_key)
+# OpenRouter API configuration
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+MODEL = "google/gemini-2.0-flash-001"  # Fast and cheap via OpenRouter
 
 
-def get_model():
-    """Get Gemini model instance."""
-    return genai.GenerativeModel("gemini-2.0-flash-exp")
+def call_llm(prompt: str) -> str:
+    """Call OpenRouter API with the given prompt."""
+    response = httpx.post(
+        OPENROUTER_API_URL,
+        headers={
+            "Authorization": f"Bearer {settings.openrouter_api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+        },
+        timeout=60.0,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
 
 
 def analyze_video(
@@ -27,8 +42,6 @@ def analyze_video(
 
     Returns dict with keys: investment, product, content, knowledge
     """
-    model = get_model()
-
     # Build content context
     content_parts = []
     if title:
@@ -97,8 +110,7 @@ Extract learnings and insights:
 Return ONLY valid JSON, no markdown formatting or code blocks."""
 
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        text = call_llm(prompt).strip()
 
         # Clean up potential markdown formatting
         if text.startswith("```"):
@@ -129,8 +141,6 @@ def chat_with_video(video, message: str) -> str:
     """
     Chat about a specific video's content and analysis.
     """
-    model = get_model()
-
     # Build context from video
     context_parts = [
         f"Title: {video.title}" if video.title else None,
@@ -154,7 +164,6 @@ USER QUESTION: {message}
 Provide a helpful, concise answer based on the video content and analysis. If the question isn't answerable from the context, say so."""
 
     try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
+        return call_llm(prompt).strip()
     except Exception as e:
         return f"Error generating response: {e}"

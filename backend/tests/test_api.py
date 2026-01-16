@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 # Setup test environment
 import os
 os.environ["TELEGRAM_BOT_TOKEN"] = "test_token"
-os.environ["GOOGLE_AI_API_KEY"] = "test_api_key"
+os.environ["OPENROUTER_API_KEY"] = "test_api_key"
 os.environ["SUPADATA_API_KEY"] = "test_supadata_key"
 os.environ["DATABASE_URL"] = "sqlite:///./test_api.db"
 
