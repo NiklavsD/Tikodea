@@ -76,6 +76,9 @@ def get_metadata_ytdlp(url: str) -> dict:
             "no_warnings": True,
             "extract_flat": False,
             "skip_download": True,
+            "http_headers": {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            },
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -95,5 +98,35 @@ def get_metadata_ytdlp(url: str) -> dict:
                 "thumbnail_url": info.get("thumbnail"),
             }
     except Exception as e:
-        print(f"yt-dlp metadata error: {e}")
-        return {}
+        error_msg = str(e)
+        if "blocked" in error_msg.lower():
+            print(f"yt-dlp blocked by TikTok - try using a VPN or proxy")
+        else:
+            print(f"yt-dlp metadata error: {e}")
+        # Return minimal data extracted from URL
+        return extract_from_url(url)
+
+
+def extract_from_url(url: str) -> dict:
+    """Extract minimal metadata from URL when APIs fail."""
+    # Try to extract video ID and username from URL
+    import re
+
+    video_id = None
+    username = None
+
+    # Standard URL: https://www.tiktok.com/@username/video/1234567890
+    match = re.search(r"tiktok\.com/@([^/]+)/video/(\d+)", url)
+    if match:
+        username = match.group(1)
+        video_id = match.group(2)
+
+    return {
+        "title": f"TikTok video {video_id}" if video_id else "TikTok video",
+        "description": None,
+        "creator": username,
+        "hashtags": [],
+        "view_count": None,
+        "like_count": None,
+        "thumbnail_url": None,
+    }
