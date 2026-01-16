@@ -19,23 +19,36 @@ def validate_tiktok_url(url: str) -> bool:
 
 def scrape_tiktok(url: str) -> dict:
     """
-    Scrape TikTok video data.
+    Scrape TikTok video data using multiple fallback methods.
 
     Returns dict with:
     - title, description, creator
     - hashtags (list)
     - view_count, like_count
     - thumbnail_url
-    - transcript (from Supadata or speech-to-text)
+    - transcript
     """
     if not validate_tiktok_url(url):
         raise ValueError(f"Invalid TikTok URL: {url}")
 
-    # Get transcript from Supadata
+    # Try methods in order of reliability
+    transcript = None
+    metadata = {}
+
+    # 1. Try Supadata for transcript
     transcript = get_transcript_supadata(url)
 
-    # Get metadata using yt-dlp
+    # 2. Try yt-dlp for metadata (with proxy if configured)
     metadata = get_metadata_ytdlp(url)
+
+    # 3. If yt-dlp failed, try oEmbed API
+    if not metadata.get("title"):
+        metadata = get_metadata_oembed(url) or metadata
+
+    # 4. Always have fallback from URL parsing
+    if not metadata.get("creator"):
+        url_data = extract_from_url(url)
+        metadata = {**url_data, **{k: v for k, v in metadata.items() if v}}
 
     return {
         "title": metadata.get("title"),
@@ -51,6 +64,9 @@ def scrape_tiktok(url: str) -> dict:
 
 def get_transcript_supadata(url: str) -> Optional[str]:
     """Get transcript from Supadata API."""
+    if not settings.supadata_api_key:
+        return None
+
     try:
         response = httpx.get(
             "https://api.supadata.ai/v1/transcript",
@@ -58,11 +74,44 @@ def get_transcript_supadata(url: str) -> Optional[str]:
             params={"url": url, "text": "true"},
             timeout=60.0,
         )
-        response.raise_for_status()
-        data = response.json()
-        return data.get("content", "")
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("content", "")
+        elif response.status_code == 404:
+            print(f"Supadata: Video not found or no transcript available")
+        else:
+            print(f"Supadata error: {response.status_code}")
+        return None
     except Exception as e:
         print(f"Supadata transcript error: {e}")
+        return None
+
+
+def get_metadata_oembed(url: str) -> Optional[dict]:
+    """Get metadata from TikTok oEmbed API."""
+    try:
+        import urllib.parse
+        encoded_url = urllib.parse.quote(url, safe='')
+        oembed_url = f'https://www.tiktok.com/oembed?url={encoded_url}'
+
+        # Use proxy if configured
+        proxy = settings.proxy_url if settings.proxy_url else None
+
+        response = httpx.get(oembed_url, proxy=proxy, timeout=30, follow_redirects=True)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "title": data.get("title"),
+                "description": data.get("title"),  # oEmbed only has title
+                "creator": data.get("author_name"),
+                "hashtags": [],
+                "view_count": None,
+                "like_count": None,
+                "thumbnail_url": data.get("thumbnail_url"),
+            }
+        return None
+    except Exception as e:
+        print(f"oEmbed error: {e}")
         return None
 
 
@@ -77,9 +126,13 @@ def get_metadata_ytdlp(url: str) -> dict:
             "extract_flat": False,
             "skip_download": True,
             "http_headers": {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             },
         }
+
+        # Add proxy if configured
+        if settings.proxy_url:
+            ydl_opts["proxy"] = settings.proxy_url
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -100,18 +153,14 @@ def get_metadata_ytdlp(url: str) -> dict:
     except Exception as e:
         error_msg = str(e)
         if "blocked" in error_msg.lower():
-            print(f"yt-dlp blocked by TikTok - try using a VPN or proxy")
+            print(f"yt-dlp: TikTok blocked access - using fallback methods")
         else:
-            print(f"yt-dlp metadata error: {e}")
-        # Return minimal data extracted from URL
-        return extract_from_url(url)
+            print(f"yt-dlp error: {e}")
+        return {}
 
 
 def extract_from_url(url: str) -> dict:
     """Extract minimal metadata from URL when APIs fail."""
-    # Try to extract video ID and username from URL
-    import re
-
     video_id = None
     username = None
 
@@ -122,7 +171,7 @@ def extract_from_url(url: str) -> dict:
         video_id = match.group(2)
 
     return {
-        "title": f"TikTok video {video_id}" if video_id else "TikTok video",
+        "title": f"TikTok by @{username}" if username else "TikTok video",
         "description": None,
         "creator": username,
         "hashtags": [],

@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # TikTok Scraping
     supadata_api_key: str
 
+    # Proxy
+    proxy_url: str = ""
+
     # Infrastructure
     redis_url: str = "redis://localhost:6379"
     database_url: str = "sqlite:///./tikodea.db"
