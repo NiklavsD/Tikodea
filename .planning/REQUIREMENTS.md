@@ -92,32 +92,32 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INPUT-01 | — | Pending |
-| INPUT-02 | — | Pending |
-| INPUT-03 | — | Pending |
-| PROC-01 | — | Pending |
-| PROC-02 | — | Pending |
-| PROC-03 | — | Pending |
-| PROC-04 | — | Pending |
-| PROC-05 | — | Pending |
-| PROC-06 | — | Pending |
-| PROC-07 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| DASH-04 | — | Pending |
-| DISC-01 | — | Pending |
-| DISC-02 | — | Pending |
-| DISC-03 | — | Pending |
-| DISC-04 | — | Pending |
-| EXPO-01 | — | Pending |
-| EXPO-02 | — | Pending |
-| EXPO-03 | — | Pending |
+| INPUT-01 | Phase 2: Telegram Input | Pending |
+| INPUT-02 | Phase 2: Telegram Input | Pending |
+| INPUT-03 | Phase 2: Telegram Input | Pending |
+| PROC-01 | Phase 3: TikTok Scraping | Pending |
+| PROC-02 | Phase 3: TikTok Scraping | Pending |
+| PROC-03 | Phase 4: LLM Analysis | Pending |
+| PROC-04 | Phase 4: LLM Analysis | Pending |
+| PROC-05 | Phase 4: LLM Analysis | Pending |
+| PROC-06 | Phase 4: LLM Analysis | Pending |
+| PROC-07 | Phase 4: LLM Analysis | Pending |
+| DASH-01 | Phase 5: Dashboard | Pending |
+| DASH-02 | Phase 5: Dashboard | Pending |
+| DASH-03 | Phase 5: Dashboard | Pending |
+| DASH-04 | Phase 6: Research Chat | Pending |
+| DISC-01 | Phase 5: Dashboard | Pending |
+| DISC-02 | Phase 5: Dashboard | Pending |
+| DISC-03 | Phase 5: Dashboard | Pending |
+| DISC-04 | Phase 5: Dashboard | Pending |
+| EXPO-01 | Phase 7: Export | Pending |
+| EXPO-02 | Phase 7: Export | Pending |
+| EXPO-03 | Phase 7: Export | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️ (awaiting roadmap)
+- Mapped to phases: 21 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-16*
