@@ -40,16 +40,16 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
   return (
     <Link href={`/video/${video.id}`}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 cursor-pointer">
-        <div className="flex gap-4">
+        <div className="flex gap-3 sm:gap-4">
           {/* Thumbnail */}
           {video.thumbnail_url ? (
             <img
               src={video.thumbnail_url}
               alt={video.title || 'Video thumbnail'}
-              className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
             />
           ) : (
-            <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center">
               <span className="text-gray-400 text-xs">No image</span>
             </div>
           )}
@@ -57,14 +57,14 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+              <h3 className="font-semibold text-gray-900 dark:text-white truncate flex-1">
                 {video.title || 'Untitled Video'}
               </h3>
               <button
                 onClick={handleFavorite}
                 disabled={isLoading}
                 className={cn(
-                  'p-1 rounded-full transition-colors',
+                  'p-1.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors flex-shrink-0',
                   isFavorite
                     ? 'text-red-500 hover:text-red-600'
                     : 'text-gray-400 hover:text-gray-600'
@@ -78,7 +78,7 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
               <p className="text-sm text-gray-500 dark:text-gray-400">@{video.creator}</p>
             )}
 
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2 text-sm text-gray-500">
               {video.view_count !== null && (
                 <span className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
                   {formatNumber(video.like_count)}
                 </span>
               )}
-              <span>{formatDate(video.created_at)}</span>
+              <span className="whitespace-nowrap">{formatDate(video.created_at)}</span>
             </div>
 
             {/* Tags */}
@@ -126,7 +126,7 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-gray-400 hover:text-primary-500 transition-colors"
+                className="text-gray-400 hover:text-primary-500 transition-colors p-2 min-w-[40px] min-h-[40px] flex items-center justify-center -mr-2"
               >
                 <ExternalLink className="w-4 h-4" />
               </a>
