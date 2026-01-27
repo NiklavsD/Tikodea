@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Test TikTok scraping with a real URL."""
 import json
+import sys
 from scraper import scrape_tiktok
 
+# Fix Windows console encoding
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Test URL - you can replace this with any TikTok video URL
-TEST_URL = "https://www.tiktok.com/@zachking/video/7445916814181780769"
+TEST_URL = "https://www.tiktok.com/@theplantslant/video/7596173772722277687"
 
 
 def main():
@@ -17,7 +23,7 @@ def main():
 
         print("\nScraping Result:")
         print("="*60)
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=True))
         print("="*60)
 
         # Check what we got

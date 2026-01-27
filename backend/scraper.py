@@ -125,15 +125,23 @@ def get_metadata_scraptik(url: str) -> dict:
             print("ScrapTik: Could not extract video ID from URL")
             return {}
 
+        # Try with URL parameter (some APIs prefer full URL over ID)
         response = httpx.get(
-            "https://scraptik.p.rapidapi.com/get-video",
+            "https://scraptik.p.rapidapi.com/video",
             headers={
                 "x-rapidapi-host": "scraptik.p.rapidapi.com",
                 "x-rapidapi-key": settings.rapidapi_key,
             },
-            params={"video_id": video_id},
+            params={"url": url},
             timeout=30.0,
         )
+
+        print(f"ScrapTik API response status: {response.status_code}")
+        if response.status_code != 200:
+            print(f"ScrapTik API response: {response.text[:500]}")
+            if "does not exist" in response.text:
+                print("\nℹ To find correct endpoint: visit https://rapidapi.com/scraptik-api-scraptik-api-default/api/scraptik/")
+                print("  Click 'Endpoints' tab, find video endpoint, copy the path from code snippets\n")
 
         if response.status_code == 200:
             data = response.json()
@@ -186,11 +194,18 @@ def get_metadata_oembed(url: str) -> Optional[dict]:
         response = httpx.get(oembed_url, proxy=proxy, timeout=30, follow_redirects=True)
         if response.status_code == 200:
             data = response.json()
+            title = data.get("title", "")
+
+            # Extract hashtags from title/description
+            hashtags = re.findall(r"#(\w+)", title)
+
+            print(f"✓ oEmbed: Success (title, creator, thumbnail)")
+
             return {
-                "title": data.get("title"),
-                "description": data.get("title"),  # oEmbed only has title
+                "title": title,
+                "description": title,  # oEmbed only has title
                 "creator": data.get("author_name"),
-                "hashtags": [],
+                "hashtags": hashtags,
                 "view_count": None,
                 "like_count": None,
                 "thumbnail_url": data.get("thumbnail_url"),
