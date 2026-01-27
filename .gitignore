@@ -43,6 +43,9 @@ coverage/
 *.log
 logs/
 
+# API quota tracking
+backend/api_quota.json
+
 # Temp files
 tmpclaude-*
 *.tmp

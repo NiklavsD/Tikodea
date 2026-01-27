@@ -3,8 +3,12 @@ import re
 from typing import Optional
 import httpx
 from config import get_settings
+from quota_tracker import check_quota, increment_quota, get_quota_status
 
 settings = get_settings()
+
+# ScrapTik free tier limit
+SCRAPTIK_MONTHLY_LIMIT = 50
 
 
 def validate_tiktok_url(url: str) -> bool:
@@ -38,14 +42,18 @@ def scrape_tiktok(url: str) -> dict:
     # 1. Try Supadata for transcript
     transcript = get_transcript_supadata(url)
 
-    # 2. Try yt-dlp for metadata (with proxy if configured)
-    metadata = get_metadata_ytdlp(url)
+    # 2. Try ScrapTik for metadata (most reliable)
+    metadata = get_metadata_scraptik(url)
 
-    # 3. If yt-dlp failed, try oEmbed API
+    # 3. If ScrapTik failed, try yt-dlp for metadata (with proxy if configured)
+    if not metadata.get("title"):
+        metadata = get_metadata_ytdlp(url)
+
+    # 4. If yt-dlp failed, try oEmbed API
     if not metadata.get("title"):
         metadata = get_metadata_oembed(url) or metadata
 
-    # 4. Always have fallback from URL parsing
+    # 5. Always have fallback from URL parsing
     if not metadata.get("creator"):
         url_data = extract_from_url(url)
         metadata = {**url_data, **{k: v for k, v in metadata.items() if v}}
@@ -85,6 +93,84 @@ def get_transcript_supadata(url: str) -> Optional[str]:
     except Exception as e:
         print(f"Supadata transcript error: {e}")
         return None
+
+
+def get_metadata_scraptik(url: str) -> dict:
+    """Get video metadata from ScrapTik API via RapidAPI."""
+    if not settings.rapidapi_key:
+        print("ScrapTik: No RapidAPI key configured")
+        return {}
+
+    # Check quota before making request
+    has_quota, used, limit = check_quota("scraptik", SCRAPTIK_MONTHLY_LIMIT)
+
+    if not has_quota:
+        print(f"ScrapTik: Monthly quota exceeded ({used}/{limit}) - using fallback")
+        return {}
+
+    # Warn when approaching limit
+    if used >= limit * 0.8:  # 80% threshold
+        print(f"⚠️  ScrapTik quota warning: {used}/{limit} used ({limit - used} remaining)")
+
+    try:
+        # Extract video ID from URL for ScrapTik
+        video_id = None
+
+        # Standard URL: https://www.tiktok.com/@username/video/1234567890
+        match = re.search(r"tiktok\.com/@[^/]+/video/(\d+)", url)
+        if match:
+            video_id = match.group(1)
+
+        if not video_id:
+            print("ScrapTik: Could not extract video ID from URL")
+            return {}
+
+        response = httpx.get(
+            "https://scraptik.p.rapidapi.com/get-video",
+            headers={
+                "x-rapidapi-host": "scraptik.p.rapidapi.com",
+                "x-rapidapi-key": settings.rapidapi_key,
+            },
+            params={"video_id": video_id},
+            timeout=30.0,
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+
+            # Check for subscription error
+            if "message" in data and "not subscribed" in data.get("message", "").lower():
+                print("ScrapTik: Not subscribed to API - visit https://rapidapi.com/scraptik-api-scraptik-api-default/api/scraptik/pricing")
+                return {}
+
+            # Extract video data from ScrapTik response
+            video = data.get("aweme_detail", {})
+            author = video.get("author", {})
+            stats = video.get("statistics", {})
+
+            # Extract description and hashtags
+            description = video.get("desc", "")
+            hashtags = re.findall(r"#(\w+)", description)
+
+            # Increment quota on successful call
+            used, limit = increment_quota("scraptik", SCRAPTIK_MONTHLY_LIMIT)
+            print(f"✓ ScrapTik: Success ({used}/{limit} used this month)")
+
+            return {
+                "title": description[:100] if description else f"TikTok by @{author.get('unique_id', 'unknown')}",
+                "description": description,
+                "creator": author.get("unique_id") or author.get("nickname"),
+                "hashtags": hashtags,
+                "view_count": stats.get("play_count"),
+                "like_count": stats.get("digg_count"),
+                "thumbnail_url": video.get("video", {}).get("cover", {}).get("url_list", [None])[0],
+            }
+        else:
+            print(f"ScrapTik error: {response.status_code}")
+            return {}
+    except Exception as e:
+        print(f"ScrapTik metadata error: {e}")
+        return {}
 
 
 def get_metadata_oembed(url: str) -> Optional[dict]:

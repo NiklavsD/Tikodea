@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     # TikTok Scraping
     supadata_api_key: str
+    rapidapi_key: str = ""
 
     # Proxy
     proxy_url: str = ""
