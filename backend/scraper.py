@@ -11,6 +11,11 @@ settings = get_settings()
 SCRAPTIK_MONTHLY_LIMIT = 50
 
 
+def is_photo_url(url: str) -> bool:
+    """Check if URL is a TikTok photo/carousel post."""
+    return bool(re.match(r"https?://(?:www\.)?tiktok\.com/@[\w.-]+/photo/\d+", url))
+
+
 def validate_tiktok_url(url: str) -> bool:
     """Validate that URL is a TikTok video URL."""
     patterns = [
@@ -32,6 +37,9 @@ def scrape_tiktok(url: str) -> dict:
     - thumbnail_url
     - transcript
     """
+    if is_photo_url(url):
+        raise ValueError("Photo/carousel posts are not supported. Please submit a video URL instead.")
+
     if not validate_tiktok_url(url):
         raise ValueError(f"Invalid TikTok URL: {url}")
 
