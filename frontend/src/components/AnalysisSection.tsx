@@ -58,27 +58,26 @@ export function AnalysisSection({ title, icon, analysis, color }: AnalysisSectio
 
   return (
     <div className={cn('rounded-lg border overflow-hidden', color)}>
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-black/5 transition-colors"
-      >
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between p-4 hover:bg-black/5 transition-colors">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 flex-1"
+        >
           {icon}
           <span className="font-medium">{title}</span>
-        </div>
+        </button>
         <div className="flex items-center gap-2">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCopy();
-            }}
+            onClick={handleCopy}
             className="p-1 hover:bg-black/10 rounded"
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
-          {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          <button onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
         </div>
-      </button>
+      </div>
 
       {isExpanded && (
         <div className="p-4 pt-0 space-y-3">

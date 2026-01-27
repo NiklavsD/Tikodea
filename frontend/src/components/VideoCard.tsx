@@ -121,15 +121,16 @@ export function VideoCard({ video, onFavoriteChange }: VideoCardProps) {
               >
                 {video.status}
               </span>
-              <a
-                href={video.tiktok_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open(video.tiktok_url, '_blank', 'noopener,noreferrer');
+                }}
                 className="text-gray-400 hover:text-primary-500 transition-colors p-2 min-w-[40px] min-h-[40px] flex items-center justify-center -mr-2"
               >
                 <ExternalLink className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           </div>
         </div>
