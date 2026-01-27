@@ -83,21 +83,21 @@ export default function VideoDetailPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-semibold truncate flex-1">
+            <h1 className="text-base sm:text-xl font-semibold truncate flex-1 min-w-0">
               {video.title || 'Untitled Video'}
             </h1>
             <button
               onClick={handleFavorite}
               className={cn(
-                'p-2 rounded-lg transition-colors',
+                'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors flex-shrink-0',
                 video.is_favorite
                   ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
                   : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
@@ -109,7 +109,7 @@ export default function VideoDetailPage() {
               href={video.tiktok_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
             >
               <ExternalLink className="w-5 h-5" />
             </a>
@@ -117,27 +117,27 @@ export default function VideoDetailPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Video Info */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             {video.thumbnail_url && (
               <img
                 src={video.thumbnail_url}
                 alt={video.title || 'Video thumbnail'}
-                className="w-32 h-32 object-cover rounded-lg"
+                className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg flex-shrink-0"
               />
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {video.creator && (
                 <p className="text-gray-600 dark:text-gray-400">@{video.creator}</p>
               )}
               {video.description && (
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 line-clamp-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
                   {video.description}
                 </p>
               )}
-              <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 text-sm text-gray-500">
                 {video.view_count !== null && (
                   <span className="flex items-center gap-1">
                     <Eye className="w-4 h-4" />
