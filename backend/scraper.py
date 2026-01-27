@@ -79,7 +79,7 @@ def get_transcript_supadata(url: str) -> Optional[str]:
         response = httpx.get(
             "https://api.supadata.ai/v1/transcript",
             headers={"x-api-key": settings.supadata_api_key},
-            params={"url": url, "text": "true"},
+            params={"url": url, "text": "true", "lang": "en"},
             timeout=60.0,
         )
         if response.status_code == 200:
