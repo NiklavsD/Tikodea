@@ -20,6 +20,7 @@ import { formatDate, formatNumber, cn } from '@/lib/utils';
 import { AnalysisSection } from '@/components/AnalysisSection';
 import { ChatInterface } from '@/components/ChatInterface';
 import { ExportButtons } from '@/components/ExportButtons';
+import { TagEditor } from '@/components/TagEditor';
 
 export default function VideoDetailPage() {
   const params = useParams();
@@ -44,6 +45,15 @@ export default function VideoDetailPage() {
       setVideo({ ...video, is_favorite: !video.is_favorite });
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
+    }
+  };
+
+  const handleTagsChange = async () => {
+    try {
+      const updatedVideo = await fetchVideo(videoId);
+      setVideo(updatedVideo);
+    } catch (error) {
+      console.error('Failed to refresh video:', error);
     }
   };
 
@@ -167,6 +177,13 @@ export default function VideoDetailPage() {
               ))}
             </div>
           )}
+
+          {/* Tag Editor */}
+          <TagEditor
+            videoId={video.id}
+            currentTags={video.manual_tags}
+            onTagsChange={handleTagsChange}
+          />
 
           {/* Context */}
           {video.context && (
