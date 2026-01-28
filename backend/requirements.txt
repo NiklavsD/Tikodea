@@ -1,6 +1,9 @@
 # Telegram Bot
 aiogram>=3.24.0
 
+# Discord Bot
+discord.py>=2.3.0
+
 # Job Queue
 rq>=1.16.0
 redis>=5.0.0

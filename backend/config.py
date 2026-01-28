@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     # Telegram
     telegram_bot_token: str
 
+    # Discord
+    discord_bot_token: str = ""
+
     # LLM (OpenRouter)
     openrouter_api_key: str
 

@@ -66,6 +66,10 @@ class Video(Base):
     telegram_chat_id = Column(String(100), nullable=True)
     telegram_message_id = Column(Integer, nullable=True)
 
+    # Discord info
+    discord_channel_id = Column(String(100), nullable=True)
+    discord_message_id = Column(String(100), nullable=True)
+
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses."""
         return {
